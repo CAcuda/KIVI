@@ -1,5 +1,4 @@
 __pycache__
-outputs
 logs
 cached_models
 *.egg-info
@@ -7,13 +6,14 @@ build
 *.so
 out_*
 *.sh
+!scripts/run_adaptive_repro.sh
+!scripts/run_modal_adaptive_detached.sh
 *.jsonl
 *.pt
 notebook
 dataset
 output_samples
 *.pdf
-*.json
 *.jsonl
 third_party
 speed_logs

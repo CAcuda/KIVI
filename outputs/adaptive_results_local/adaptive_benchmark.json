@@ -1,0 +1,22 @@
+{
+  "model_name_or_path": "mistralai/Mistral-7B-Instruct-v0.2",
+  "mode": "adaptive_kv",
+  "adaptive_policy": "static_distance",
+  "adaptive_segment_lengths": "2048,4096,8192",
+  "adaptive_k_bits": "8,4,2",
+  "adaptive_v_bits": "8,4,2",
+  "flash_attention_2_enabled": false,
+  "dtype": "float16",
+  "batch_size": 96,
+  "requested_batch_size": 96,
+  "prompt_length": 160,
+  "output_length": 338,
+  "num_repeats": 3,
+  "avg_time_ms": 50999.389251073204,
+  "peak_mem_gb": 17.829333782196045,
+  "k_bits": 2,
+  "v_bits": 2,
+  "group_size": 64,
+  "residual_length": 128,
+  "oom_retries": []
+}

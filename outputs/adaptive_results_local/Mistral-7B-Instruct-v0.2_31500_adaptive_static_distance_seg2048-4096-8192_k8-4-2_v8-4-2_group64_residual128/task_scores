@@ -1,0 +1,11 @@
+{
+  "dataset": "qmsum",
+  "num_predictions": 200,
+  "score": 24.01,
+  "has_lengths": true
+}true
+}msum": 24.01,
+  "multi_news": 26.96,
+  "passage_retrieval_en": 73.62,
+  "repobench-p": 53.94
+}

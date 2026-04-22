@@ -42,6 +42,7 @@ dataset2metric = {
 def parse_args(args=None):
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', type=str, default=None)
+    parser.add_argument('--pred_root', type=str, default=None)
     parser.add_argument('--e', action='store_true', help="Evaluate on LongBench-E")
     return parser.parse_args(args)
 
@@ -77,7 +78,9 @@ def scorer(dataset, predictions, answers, all_classes):
 if __name__ == '__main__':
     args = parse_args()
     scores = dict()
-    if args.e:
+    if args.pred_root is not None:
+        path = os.path.join(args.pred_root, args.model) + "/"
+    elif args.e:
         path = f"pred_e/{args.model}/"
     else:
         path = f"pred/{args.model}/"
@@ -101,7 +104,9 @@ if __name__ == '__main__':
         else:
             score = scorer(dataset, predictions, answers, all_classes)
         scores[dataset] = score
-    if args.e:
+    if args.pred_root is not None:
+        out_path = os.path.join(args.pred_root, args.model, "result.json")
+    elif args.e:
         out_path = f"pred_e/{args.model}/result.json"
     else:
         out_path = f"pred/{args.model}/result.json"
