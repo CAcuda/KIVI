@@ -245,16 +245,16 @@ Source:
 
 Scores:
 
-| Task | Score |
-|---|---:|
-| `triviaqa` | `86.64` |
-| `qasper` | `33.18` |
-| `trec` | `71.00` |
-| `samsum` | `43.18` |
-| `lcc` | `56.08` |
-| `repobench-p` | `53.94` |
-| `qmsum` | `24.01` |
-| `multi_news` | `26.96` |
+| Task                     |     Score |
+| ------------------------ | --------: |
+| `triviaqa`             | `86.64` |
+| `qasper`               | `33.18` |
+| `trec`                 | `71.00` |
+| `samsum`               | `43.18` |
+| `lcc`                  | `56.08` |
+| `repobench-p`          | `53.94` |
+| `qmsum`                | `24.01` |
+| `multi_news`           | `26.96` |
 | `passage_retrieval_en` | `73.62` |
 
 ## Local Saved Artifacts
