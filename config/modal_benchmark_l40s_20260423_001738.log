@@ -1,0 +1,141 @@
+✓ Initialized. View run at 
+https://modal.com/apps/yunzhu/main/ap-wFe4fRlExruUg8A1yqAhmE
+Building image im-sriVh4ZJakY3kWO29Odd7p
+
+=> Step 0: FROM base
+
+=> Step 1: COPY . /
+Saving image...
+Image saved, took 747.74ms
+
+Built image im-sriVh4ZJakY3kWO29Odd7p in 3.14s
+
+
+Building image im-ANxJiosN0iWhpaqqRekzgF
+
+=> Step 0: FROM base
+
+=> Step 1: ENV HF_HOME=/cache/hf_home
+
+=> Step 2: ENV PYTHONDONTWRITEBYTECODE=1
+
+=> Step 3: ENV PYTHONUNBUFFERED=1
+
+=> Step 4: ENV CC=gcc
+
+=> Step 5: ENV CXX=g++
+
+=> Step 6: ENV MAX_JOBS=4
+
+=> Step 7: ENV CUDA_HOME=/usr/local/cuda
+
+=> Step 8: ENV TORCH_CUDA_ARCH_LIST='7.5;8.0;8.6'
+Saving image...
+Image saved, took 2.22s
+
+Built image im-ANxJiosN0iWhpaqqRekzgF in 7.90s
+
+
+Building image im-0lzcT9mkUzl5tHnu8KBTlv
+
+=> Step 0: FROM base
+
+=> Step 1: RUN cd /root/KIVI && python -m pip install -e . --no-build-isolation --no-deps
+Looking in indexes: http://pypi-mirror.modal.local:5555/simple
+Obtaining file:///root/KIVI
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: kivi
+  Building editable for kivi (pyproject.toml): started
+  Building editable for kivi (pyproject.toml): finished with status 'done'
+  Created wheel for kivi: filename=kivi-0.1.0-0.editable-py3-none-any.whl size=6232 sha256=f4f049fd8b84db4bfea18986261134d4dfe4fd4fa7c1cb3199fc3f0b534319e6
+  Stored in directory: /tmp/pip-ephem-wheel-cache-hr_pm8v9/wheels/9c/f4/5a/67c48196392b443421083f3e50968c5aafb69fac52e573a086
+Successfully built kivi
+Installing collected packages: kivi
+Successfully installed kivi-0.1.0
+
+[notice] A new release of pip is available: 23.2.1 -> 26.0.1
+[notice] To update, run: pip install --upgrade pip
+
+=> Step 2: RUN cd /root/KIVI/quant && python -m pip install . --no-build-isolation --no-deps
+Looking in indexes: http://pypi-mirror.modal.local:5555/simple
+Processing /root/KIVI/quant
+  Preparing metadata (setup.py): started
+  Preparing metadata (setup.py): finished with status 'done'
+Building wheels for collected packages: kivi-gemv
+  Building wheel for kivi-gemv (setup.py): started
+  Building wheel for kivi-gemv (setup.py): still running...
+  Building wheel for kivi-gemv (setup.py): finished with status 'done'
+  Created wheel for kivi-gemv: filename=kivi_gemv-0.0.0-cp310-cp310-linux_x86_64.whl size=2698219 sha256=b93e0594d3e0b16c57cfa936d0f9bc942f35bb2096fd16b1fbcda1bec1cf8813
+  Stored in directory: /tmp/pip-ephem-wheel-cache-lsc3efhh/wheels/91/df/61/bbc3ceb6b86ed05ac574ac59124bd67ec0fdb510047e3bf38c
+Successfully built kivi-gemv
+Installing collected packages: kivi-gemv
+Successfully installed kivi-gemv-0.0.0
+
+[notice] A new release of pip is available: 23.2.1 -> 26.0.1
+[notice] To update, run: pip install --upgrade pip
+Saving image...
+Image saved, took 859.96ms
+
+Built image im-0lzcT9mkUzl5tHnu8KBTlv in 86.43s
+
+
+✓ Created objects.
+├── 🔨 Created mount /Users/cynthia/KIVI/scripts/modal_adaptive_run.py
+├── 🔨 Created mount /Users/cynthia/KIVI
+├── 🔨 Created function smoke_test.
+├── 🔨 Created function run_adaptive_repro.
+├── 🔨 Created function run_adaptive_benchmark.
+├── 🔨 Created function run_adaptive_benchmark_l40s.
+├── 🔨 Created function run_adaptive_longbench_task.
+└── 🔨 Created function run_adaptive_longbench.
+
+==========
+== CUDA ==
+==========
+
+CUDA Version 12.1.1
+
+Container image Copyright (c) 2016-2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
+This container image and its contents are governed by the NVIDIA Deep Learning Container License.
+By pulling and using the container, you accept the terms and conditions of this license:
+https://developer.nvidia.com/ngc/nvidia-deep-learning-container-license
+
+A copy of this license is made available in this container at /NGC-DL-CONTAINER-LICENSE for your convenience.
+
+
+Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s]
+Loading checkpoint shards:  33%|███▎      | 1/3 [00:05<00:11,  5.66s/it]
+Loading checkpoint shards:  67%|██████▋   | 2/3 [00:10<00:05,  5.01s/it]
+Loading checkpoint shards: 100%|██████████| 3/3 [00:14<00:00,  4.70s/it]
+Loading checkpoint shards: 100%|██████████| 3/3 [00:14<00:00,  4.85s/it]
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+{
+  "model_name_or_path": "mistralai/Mistral-7B-Instruct-v0.2",
+  "mode": "adaptive_kv",
+  "adaptive_policy": "static_distance",
+  "adaptive_segment_lengths": "2048,4096,8192",
+  "adaptive_k_bits": "8,4,2",
+  "adaptive_v_bits": "8,4,2",
+  "flash_attention_2_enabled": false,
+  "dtype": "float16",
+  "batch_size": 96,
+  "requested_batch_size": 96,
+  "prompt_length": 160,
+  "output_length": 338,
+  "num_repeats": 3,
+  "avg_time_ms": 61840.70579210917,
+  "peak_mem_gb": 17.829333782196045,
+  "k_bits": 2,
+  "v_bits": 2,
+  "group_size": 64,
+  "residual_length": 128,
+  "oom_retries": []
+}
+✓ App completed. View run at 
+https://modal.com/apps/yunzhu/main/ap-wFe4fRlExruUg8A1yqAhmE

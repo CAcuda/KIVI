@@ -1,0 +1,158 @@
+✓ Initialized. View run at 
+https://modal.com/apps/yunzhu/main/ap-w7mIdNiTvX1NRYU5ZskkQU
+Building image im-cWLwr1a8cQwjKL4korQy4I
+
+=> Step 0: FROM base
+
+=> Step 1: COPY . /
+Saving image...
+Image saved, took 923.28ms
+
+Built image im-cWLwr1a8cQwjKL4korQy4I in 3.62s
+
+
+Building image im-B041PauOCLCgBgEfgkqqYM
+
+=> Step 0: FROM base
+
+=> Step 1: ENV HF_HOME=/cache/hf_home
+
+=> Step 2: ENV PYTHONDONTWRITEBYTECODE=1
+
+=> Step 3: ENV PYTHONUNBUFFERED=1
+
+=> Step 4: ENV CC=gcc
+
+=> Step 5: ENV CXX=g++
+
+=> Step 6: ENV MAX_JOBS=4
+
+=> Step 7: ENV CUDA_HOME=/usr/local/cuda
+
+=> Step 8: ENV TORCH_CUDA_ARCH_LIST='7.5;8.0;8.6'
+Saving image...
+Image saved, took 795.98ms
+
+Built image im-B041PauOCLCgBgEfgkqqYM in 3.23s
+
+
+Building image im-krx5L5EkaZKfnMn7FEvd1C
+
+=> Step 0: FROM base
+
+=> Step 1: RUN cd /root/KIVI && python -m pip install -e . --no-build-isolation --no-deps
+Looking in indexes: http://pypi-mirror.modal.local:5555/simple
+Obtaining file:///root/KIVI
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: kivi
+  Building editable for kivi (pyproject.toml): started
+  Building editable for kivi (pyproject.toml): finished with status 'done'
+  Created wheel for kivi: filename=kivi-0.1.0-0.editable-py3-none-any.whl size=6248 sha256=2a54f7d02ef8308587a76eb200813993f460953859940144128d8bc2d380ee8e
+  Stored in directory: /tmp/pip-ephem-wheel-cache-eggi6_o3/wheels/9c/f4/5a/67c48196392b443421083f3e50968c5aafb69fac52e573a086
+Successfully built kivi
+Installing collected packages: kivi
+Successfully installed kivi-0.1.0
+
+[notice] A new release of pip is available: 23.2.1 -> 26.0.1
+[notice] To update, run: pip install --upgrade pip
+
+=> Step 2: RUN cd /root/KIVI/quant && python -m pip install . --no-build-isolation --no-deps
+Looking in indexes: http://pypi-mirror.modal.local:5555/simple
+Processing /root/KIVI/quant
+  Preparing metadata (setup.py): started
+  Preparing metadata (setup.py): finished with status 'done'
+Building wheels for collected packages: kivi-gemv
+  Building wheel for kivi-gemv (setup.py): started
+  Building wheel for kivi-gemv (setup.py): still running...
+  Building wheel for kivi-gemv (setup.py): finished with status 'done'
+  Created wheel for kivi-gemv: filename=kivi_gemv-0.0.0-cp310-cp310-linux_x86_64.whl size=2698218 sha256=02ce5b5d56efd7aa82f0dce9b3c8cc1614b87a0fd11085acee8b85935d148e0a
+  Stored in directory: /tmp/pip-ephem-wheel-cache-subehddj/wheels/91/df/61/bbc3ceb6b86ed05ac574ac59124bd67ec0fdb510047e3bf38c
+Successfully built kivi-gemv
+Installing collected packages: kivi-gemv
+Successfully installed kivi-gemv-0.0.0
+
+[notice] A new release of pip is available: 23.2.1 -> 26.0.1
+[notice] To update, run: pip install --upgrade pip
+Saving image...
+Image saved, took 1.31s
+
+Built image im-krx5L5EkaZKfnMn7FEvd1C in 117.72s
+
+
+✓ Created objects.
+├── 🔨 Created mount /Users/cynthia/KIVI/scripts/modal_adaptive_run.py
+├── 🔨 Created mount /Users/cynthia/KIVI
+├── 🔨 Created function smoke_test.
+├── 🔨 Created function run_adaptive_repro.
+├── 🔨 Created function run_adaptive_benchmark.
+├── 🔨 Created function run_adaptive_benchmark_l40s.
+├── 🔨 Created function run_dynamic_mem_speed_l40s.
+├── 🔨 Created function run_adaptive_longbench_task.
+└── 🔨 Created function run_adaptive_longbench.
+
+==========
+== CUDA ==
+==========
+
+CUDA Version 12.1.1
+
+Container image Copyright (c) 2016-2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
+This container image and its contents are governed by the NVIDIA Deep Learning Container License.
+By pulling and using the container, you accept the terms and conditions of this license:
+https://developer.nvidia.com/ngc/nvidia-deep-learning-container-license
+
+A copy of this license is made available in this container at /NGC-DL-CONTAINER-LICENSE for your convenience.
+
+
+Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s]
+Loading checkpoint shards:  33%|███▎      | 1/3 [00:03<00:07,  3.87s/it]
+Loading checkpoint shards:  67%|██████▋   | 2/3 [00:07<00:03,  3.73s/it]
+Loading checkpoint shards: 100%|██████████| 3/3 [00:10<00:00,  3.49s/it]
+Loading checkpoint shards: 100%|██████████| 3/3 [00:10<00:00,  3.57s/it]
+bs: 96, seqlen: 160+338
+model: mistralai/Mistral-7B-Instruct-v0.2  mode=dynamic_k2v2_top10pct
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+[DEBUG] total_kv=161, k_top=16, n_quant=128, n_full=33, top_k_percent=10.0
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+used time: 86765.9 ms
+throughput: 374.0 tokens/s
+peak mem: 25.303 GB
+Results saved to outputs/dynamic_mem_speed_top10_l40s.json
+
+Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s]
+Loading checkpoint shards:  33%|███▎      | 1/3 [00:01<00:03,  1.54s/it]
+Loading checkpoint shards:  67%|██████▋   | 2/3 [00:03<00:01,  1.55s/it]
+Loading checkpoint shards: 100%|██████████| 3/3 [00:04<00:00,  1.46s/it]
+Loading checkpoint shards: 100%|██████████| 3/3 [00:04<00:00,  1.49s/it]
+bs: 96, seqlen: 160+338
+model: mistralai/Mistral-7B-Instruct-v0.2  mode=dynamic_k2v2_top20pct
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+[DEBUG] total_kv=161, k_top=32, n_quant=128, n_full=33, top_k_percent=20.0
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+
+==========
+== CUDA ==
+==========
+
+CUDA Version 12.1.1
+
+Container image Copyright (c) 2016-2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
+This container image and its contents are governed by the NVIDIA Deep Learning Container License.
+By pulling and using the container, you accept the terms and conditions of this license:
+https://developer.nvidia.com/ngc/nvidia-deep-learning-container-license
+
+A copy of this license is made available in this container at /NGC-DL-CONTAINER-LICENSE for your convenience.
+
+used time: 86622.8 ms
+throughput: 374.6 tokens/s
+peak mem: 25.325 GB
+Results saved to outputs/dynamic_mem_speed_top20_l40s.json
+✓ App completed. View run at 
+https://modal.com/apps/yunzhu/main/ap-w7mIdNiTvX1NRYU5ZskkQU
