@@ -1,0 +1,137 @@
+{
+  "configs": {
+    "fp16": {
+      "model_name_or_path": "mistralai/Mistral-7B-Instruct-v0.2",
+      "mode": "fp16",
+      "gpu": "NVIDIA A100-SXM4-40GB",
+      "flash_attention_2_enabled": true,
+      "dtype": "float16",
+      "batch_size": 4,
+      "requested_batch_size": 4,
+      "prompt_length": 8192,
+      "output_length": 256,
+      "generated_tokens": 256,
+      "max_kv_len": 8448,
+      "num_repeats": 3,
+      "warmup_tokens": 8,
+      "avg_time_ms": 23135.082194999995,
+      "decode_tokens_per_s": 44.26178352724025,
+      "peak_mem_gb": 23.60763692855835,
+      "weights_mem_gb": 13.488792419433594,
+      "peak_mem_minus_weights_gb": 10.118844509124756,
+      "oom_retries": []
+    },
+    "kivi_2bit": {
+      "model_name_or_path": "mistralai/Mistral-7B-Instruct-v0.2",
+      "mode": "fixed_kivi",
+      "gpu": "NVIDIA A100-SXM4-40GB",
+      "flash_attention_2_enabled": true,
+      "dtype": "float16",
+      "batch_size": 4,
+      "requested_batch_size": 4,
+      "prompt_length": 8192,
+      "output_length": 256,
+      "generated_tokens": 256,
+      "max_kv_len": 8448,
+      "num_repeats": 3,
+      "warmup_tokens": 8,
+      "avg_time_ms": 18971.292450666668,
+      "decode_tokens_per_s": 53.97629089651274,
+      "peak_mem_gb": 20.26217794418335,
+      "weights_mem_gb": 13.488792419433594,
+      "peak_mem_minus_weights_gb": 6.773385524749756,
+      "oom_retries": [],
+      "k_bits": 2,
+      "v_bits": 2,
+      "group_size": 64,
+      "residual_length": 128
+    },
+    "kivi_4bit": {
+      "model_name_or_path": "mistralai/Mistral-7B-Instruct-v0.2",
+      "mode": "fixed_kivi",
+      "gpu": "NVIDIA A100-SXM4-40GB",
+      "flash_attention_2_enabled": true,
+      "dtype": "float16",
+      "batch_size": 4,
+      "requested_batch_size": 4,
+      "prompt_length": 8192,
+      "output_length": 256,
+      "generated_tokens": 256,
+      "max_kv_len": 8448,
+      "num_repeats": 3,
+      "warmup_tokens": 8,
+      "avg_time_ms": 18819.65789933333,
+      "decode_tokens_per_s": 54.41119097261987,
+      "peak_mem_gb": 20.76205587387085,
+      "weights_mem_gb": 13.488792419433594,
+      "peak_mem_minus_weights_gb": 7.273263454437256,
+      "oom_retries": [],
+      "k_bits": 4,
+      "v_bits": 4,
+      "group_size": 64,
+      "residual_length": 128
+    },
+    "sp_kv": {
+      "model_name_or_path": "mistralai/Mistral-7B-Instruct-v0.2",
+      "mode": "adaptive_kv",
+      "gpu": "NVIDIA A100-SXM4-40GB",
+      "flash_attention_2_enabled": true,
+      "dtype": "float16",
+      "batch_size": 4,
+      "requested_batch_size": 4,
+      "prompt_length": 8192,
+      "output_length": 256,
+      "generated_tokens": 256,
+      "max_kv_len": 8448,
+      "num_repeats": 3,
+      "warmup_tokens": 8,
+      "avg_time_ms": 41776.781494333336,
+      "decode_tokens_per_s": 24.511222822152945,
+      "peak_mem_gb": 20.88815450668335,
+      "weights_mem_gb": 13.488792419433594,
+      "peak_mem_minus_weights_gb": 7.399362087249756,
+      "oom_retries": [],
+      "adaptive_policy": "static_distance",
+      "adaptive_segment_lengths": "2048,4096,8192",
+      "adaptive_k_bits": "8,4,2",
+      "adaptive_v_bits": "8,4,2",
+      "group_size": 64,
+      "residual_length": 128,
+      "bucket_token_counts_at_max_len": {
+        "fp16_residual": 0,
+        "segments": [
+          2048,
+          4096,
+          2304
+        ]
+      },
+      "effective_k_bits_at_max_len": 4.424242424242424,
+      "effective_v_bits_at_max_len": 4.424242424242424
+    }
+  },
+  "same_batch_size": true,
+  "batch_sizes": {
+    "fp16": 4,
+    "kivi_2bit": 4,
+    "kivi_4bit": 4,
+    "sp_kv": 4
+  },
+  "relative_to_fp16": {
+    "fp16": {
+      "time": 1.0,
+      "peak_mem_minus_weights": 1.0
+    },
+    "kivi_2bit": {
+      "time": 0.8200226950032962,
+      "peak_mem_minus_weights": 0.6693832995103143
+    },
+    "kivi_4bit": {
+      "time": 0.813468382809579,
+      "peak_mem_minus_weights": 0.7187839923697342
+    },
+    "sp_kv": {
+      "time": 1.8057762294599595,
+      "peak_mem_minus_weights": 0.7312457544512436
+    }
+  }
+}

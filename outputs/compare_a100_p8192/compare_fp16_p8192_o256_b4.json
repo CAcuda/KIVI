@@ -1,0 +1,21 @@
+{
+  "model_name_or_path": "mistralai/Mistral-7B-Instruct-v0.2",
+  "mode": "fp16",
+  "gpu": "NVIDIA A100-SXM4-40GB",
+  "flash_attention_2_enabled": true,
+  "dtype": "float16",
+  "batch_size": 4,
+  "requested_batch_size": 4,
+  "prompt_length": 8192,
+  "output_length": 256,
+  "generated_tokens": 256,
+  "max_kv_len": 8448,
+  "num_repeats": 3,
+  "warmup_tokens": 8,
+  "avg_time_ms": 23135.082194999995,
+  "decode_tokens_per_s": 44.26178352724025,
+  "peak_mem_gb": 23.60763692855835,
+  "weights_mem_gb": 13.488792419433594,
+  "peak_mem_minus_weights_gb": 10.118844509124756,
+  "oom_retries": []
+}

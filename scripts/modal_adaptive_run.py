@@ -289,30 +289,20 @@ def run_adaptive_repro(
     return output
 
 
-@app.function(
-    image=image,
-    gpu="A100",
-    cpu=8,
-    memory=65536,
-    timeout=4 * 60 * 60,
-    volumes={
-        REMOTE_CACHE: cache_volume,
-        REMOTE_OUTPUTS: outputs_volume,
-    },
-    secrets=[hf_secret],
-)
-def run_adaptive_benchmark(
-    model_name_or_path: str = "mistralai/Mistral-7B-Instruct-v0.2",
-    group_size: int = 64,
-    residual_length: int = 128,
-    segment_lengths: str = "2048,4096,8192",
-    k_bits_list: str = "8,4,2",
-    v_bits_list: str = "8,4,2",
-    batch_size: int = 96,
-    prompt_length: int = 160,
-    output_length: int = 338,
-    num_repeats: int = 3,
+def _run_adaptive_benchmark_impl(
+    model_name_or_path: str,
+    group_size: int,
+    residual_length: int,
+    segment_lengths: str,
+    k_bits_list: str,
+    v_bits_list: str,
+    batch_size: int,
+    prompt_length: int,
+    output_length: int,
+    num_repeats: int,
+    output_filename: str,
 ) -> str:
+    out_json = f"outputs/{output_filename}"
     cmd = [
         "python",
         "scripts/run_adaptive_mem_speed.py",
@@ -344,14 +334,199 @@ def run_adaptive_benchmark(
         "--adaptive_v_bits",
         v_bits_list,
         "--out_json",
-        "outputs/adaptive_benchmark.json",
+        out_json,
     ]
     output = _run(cmd, cwd=REMOTE_REPO)
 
-    _copy_if_exists(f"{REMOTE_REPO}/outputs/adaptive_benchmark.json", REMOTE_OUTPUTS)
+    _copy_if_exists(f"{REMOTE_REPO}/{out_json}", REMOTE_OUTPUTS)
     cache_volume.commit()
     outputs_volume.commit()
     return output
+
+
+@app.function(
+    image=image,
+    gpu="A100",
+    cpu=8,
+    memory=65536,
+    timeout=4 * 60 * 60,
+    volumes={
+        REMOTE_CACHE: cache_volume,
+        REMOTE_OUTPUTS: outputs_volume,
+    },
+    secrets=[hf_secret],
+)
+def run_adaptive_benchmark(
+    model_name_or_path: str = "mistralai/Mistral-7B-Instruct-v0.2",
+    group_size: int = 64,
+    residual_length: int = 128,
+    segment_lengths: str = "2048,4096,8192",
+    k_bits_list: str = "8,4,2",
+    v_bits_list: str = "8,4,2",
+    batch_size: int = 96,
+    prompt_length: int = 160,
+    output_length: int = 338,
+    num_repeats: int = 3,
+) -> str:
+    return _run_adaptive_benchmark_impl(
+        model_name_or_path=model_name_or_path,
+        group_size=group_size,
+        residual_length=residual_length,
+        segment_lengths=segment_lengths,
+        k_bits_list=k_bits_list,
+        v_bits_list=v_bits_list,
+        batch_size=batch_size,
+        prompt_length=prompt_length,
+        output_length=output_length,
+        num_repeats=num_repeats,
+        output_filename="adaptive_benchmark.json",
+    )
+
+
+@app.function(
+    image=image,
+    gpu="L40S",
+    cpu=8,
+    memory=65536,
+    timeout=4 * 60 * 60,
+    volumes={
+        REMOTE_CACHE: cache_volume,
+        REMOTE_OUTPUTS: outputs_volume,
+    },
+    secrets=[hf_secret],
+)
+def run_adaptive_benchmark_l40s(
+    model_name_or_path: str = "mistralai/Mistral-7B-Instruct-v0.2",
+    group_size: int = 64,
+    residual_length: int = 128,
+    segment_lengths: str = "2048,4096,8192",
+    k_bits_list: str = "8,4,2",
+    v_bits_list: str = "8,4,2",
+    batch_size: int = 96,
+    prompt_length: int = 160,
+    output_length: int = 338,
+    num_repeats: int = 3,
+) -> str:
+    return _run_adaptive_benchmark_impl(
+        model_name_or_path=model_name_or_path,
+        group_size=group_size,
+        residual_length=residual_length,
+        segment_lengths=segment_lengths,
+        k_bits_list=k_bits_list,
+        v_bits_list=v_bits_list,
+        batch_size=batch_size,
+        prompt_length=prompt_length,
+        output_length=output_length,
+        num_repeats=num_repeats,
+        output_filename="adaptive_benchmark_l40s.json",
+    )
+
+
+def _controlled_comparison_configs(segment_lengths: str, k_bits_list: str, v_bits_list: str) -> dict[str, list[str]]:
+    return {
+        "fp16": ["--full_precision"],
+        "kivi_2bit": ["--k_bits", "2", "--v_bits", "2"],
+        "kivi_4bit": ["--k_bits", "4", "--v_bits", "4"],
+        "sp_kv": [
+            "--adaptive_kv",
+            "--adaptive_policy",
+            "static_distance",
+            "--adaptive_segment_lengths",
+            segment_lengths,
+            "--adaptive_k_bits",
+            k_bits_list,
+            "--adaptive_v_bits",
+            v_bits_list,
+        ],
+    }
+
+
+@app.function(
+    image=image,
+    gpu="A100",
+    cpu=8,
+    memory=65536,
+    timeout=4 * 60 * 60,
+    volumes={
+        REMOTE_CACHE: cache_volume,
+        REMOTE_OUTPUTS: outputs_volume,
+    },
+    secrets=[hf_secret],
+)
+def run_controlled_comparison(
+    model_name_or_path: str = "mistralai/Mistral-7B-Instruct-v0.2",
+    group_size: int = 64,
+    residual_length: int = 128,
+    segment_lengths: str = "2048,4096,8192",
+    k_bits_list: str = "8,4,2",
+    v_bits_list: str = "8,4,2",
+    batch_size: int = 4,
+    prompt_length: int = 8192,
+    output_length: int = 256,
+    num_repeats: int = 3,
+    use_flash_attention_2: bool = True,
+) -> str:
+    """FP16 vs KIVI-2/4bit vs SP-KV on one GPU with identical batch, lengths and attention path.
+
+    The default 8K prompt is long enough that SP-KV fills its 8-, 4- and 2-bit segments,
+    unlike the 160+338-token stress test. FlashAttention prefill is on by default: with eager
+    attention, the O(T^2) prefill attention matrix would dominate peak memory at 8K.
+    """
+    results = {}
+    for name, extra_args in _controlled_comparison_configs(segment_lengths, k_bits_list, v_bits_list).items():
+        out_json = f"outputs/compare_{name}_p{prompt_length}_o{output_length}_b{batch_size}.json"
+        cmd = [
+            "python",
+            "scripts/run_adaptive_mem_speed.py",
+            "--model_name_or_path",
+            model_name_or_path,
+            "--cache_dir",
+            f"{REMOTE_CACHE}/cached_models",
+            "--batch_size",
+            str(batch_size),
+            "--prompt_length",
+            str(prompt_length),
+            "--output_length",
+            str(output_length),
+            "--num_repeats",
+            str(num_repeats),
+            "--group_size",
+            str(group_size),
+            "--residual_length",
+            str(residual_length),
+            "--use_flash_attention_2",
+            "true" if use_flash_attention_2 else "false",
+            "--out_json",
+            out_json,
+            *extra_args,
+        ]
+        _run(cmd, cwd=REMOTE_REPO)
+        _copy_if_exists(f"{REMOTE_REPO}/{out_json}", REMOTE_OUTPUTS)
+        with open(f"{REMOTE_REPO}/{out_json}", "r", encoding="utf-8") as f:
+            results[name] = json.load(f)
+
+    batch_sizes = {name: r["batch_size"] for name, r in results.items()}
+    summary = {
+        "configs": results,
+        "same_batch_size": len(set(batch_sizes.values())) == 1,
+        "batch_sizes": batch_sizes,
+        "relative_to_fp16": {
+            name: {
+                "time": r["avg_time_ms"] / results["fp16"]["avg_time_ms"],
+                "peak_mem_minus_weights": r["peak_mem_minus_weights_gb"] / results["fp16"]["peak_mem_minus_weights_gb"],
+            }
+            for name, r in results.items()
+        },
+    }
+    if not summary["same_batch_size"]:
+        summary["warning"] = "OOM backoff changed the batch size for some configs; ratios are not like-for-like."
+    summary_path = f"{REMOTE_REPO}/outputs/compare_summary_p{prompt_length}_o{output_length}_b{batch_size}.json"
+    with open(summary_path, "w", encoding="utf-8") as f:
+        json.dump(summary, f, indent=2)
+    _copy_if_exists(summary_path, REMOTE_OUTPUTS)
+    cache_volume.commit()
+    outputs_volume.commit()
+    return json.dumps(summary["relative_to_fp16"], indent=2)
 
 
 @app.function(
@@ -397,7 +572,11 @@ def run_adaptive_longbench_task(
     os.makedirs(meta_dir, exist_ok=True)
     os.makedirs(score_dir, exist_ok=True)
 
-    if os.path.exists(out_path) and os.path.getsize(out_path) > 0:
+    if REMOTE_REPO not in sys.path:
+        sys.path.insert(0, REMOTE_REPO)
+    from utils.longbench_io import is_complete
+
+    if is_complete(out_path):
         score_payload = None
         if os.path.exists(score_path):
             with open(score_path, "r", encoding="utf-8") as f:
@@ -496,12 +675,12 @@ def run_adaptive_longbench(
     pred_root = _adaptive_pred_root()
     exp_dir = f"{pred_root}/{model_tag}"
     os.makedirs(exp_dir, exist_ok=True)
+    if REMOTE_REPO not in sys.path:
+        sys.path.insert(0, REMOTE_REPO)
+    from utils.longbench_io import missing_datasets as find_missing_datasets
+
     datasets = _adaptive_longbench_datasets()
-    missing_datasets = [
-        dataset
-        for dataset in datasets
-        if not (os.path.exists(f"{exp_dir}/{dataset}.jsonl") and os.path.getsize(f"{exp_dir}/{dataset}.jsonl") > 0)
-    ]
+    missing_datasets = find_missing_datasets(exp_dir, datasets)
 
     launch_manifest = {
         "model_tag": model_tag,
@@ -566,6 +745,9 @@ def main(
     prompt_length: int = 160,
     output_length: int = 338,
     num_repeats: int = 3,
+    compare_batch_size: int = 4,
+    compare_prompt_length: int = 8192,
+    compare_output_length: int = 256,
 ):
     if action == "smoke":
         print(smoke_test.remote())
@@ -582,6 +764,22 @@ def main(
                 batch_size=batch_size,
                 prompt_length=prompt_length,
                 output_length=output_length,
+                num_repeats=num_repeats,
+            )
+        )
+        return
+    if action == "compare":
+        print(
+            run_controlled_comparison.remote(
+                model_name_or_path=model_name_or_path,
+                group_size=group_size,
+                residual_length=residual_length,
+                segment_lengths=segment_lengths,
+                k_bits_list=k_bits_list,
+                v_bits_list=v_bits_list,
+                batch_size=compare_batch_size,
+                prompt_length=compare_prompt_length,
+                output_length=compare_output_length,
                 num_repeats=num_repeats,
             )
         )

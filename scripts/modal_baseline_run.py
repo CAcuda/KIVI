@@ -146,3 +146,95 @@ def run_baseline_passage_retrieval_en(
     cache_volume.commit()
     outputs_volume.commit()
     return output
+
+
+@app.function(
+    image=image,
+    gpu="A100",
+    cpu=8,
+    memory=65536,
+    timeout=4 * 60 * 60,
+    volumes={
+        REMOTE_CACHE: cache_volume,
+        REMOTE_OUTPUTS: outputs_volume,
+    },
+    secrets=[hf_secret],
+)
+def run_baseline_mem_speed_no_flash(
+    model_name_or_path: str = "mistralai/Mistral-7B-Instruct-v0.2",
+    batch_size: int = 96,
+    prompt_length: int = 160,
+    output_length: int = 338,
+    num_repeats: int = 3,
+) -> str:
+    out_json = "outputs/baseline_mem_speed_no_flash.json"
+    cmd = [
+        "python",
+        "scripts/run_baseline_mem_speed.py",
+        "--model_name_or_path",
+        model_name_or_path,
+        "--cache_dir",
+        f"{REMOTE_CACHE}/cached_models",
+        "--batch_size",
+        str(batch_size),
+        "--prompt_length",
+        str(prompt_length),
+        "--output_length",
+        str(output_length),
+        "--num_repeats",
+        str(num_repeats),
+        "--disable_flash_attention_2",
+        "--out_json",
+        out_json,
+    ]
+    output = _run(cmd, cwd=REMOTE_REPO)
+    _copy_if_exists(f"{REMOTE_REPO}/{out_json}", REMOTE_OUTPUTS)
+    cache_volume.commit()
+    outputs_volume.commit()
+    return output
+
+
+@app.function(
+    image=image,
+    gpu="L40S",
+    cpu=8,
+    memory=65536,
+    timeout=4 * 60 * 60,
+    volumes={
+        REMOTE_CACHE: cache_volume,
+        REMOTE_OUTPUTS: outputs_volume,
+    },
+    secrets=[hf_secret],
+)
+def run_baseline_mem_speed_no_flash_l40s(
+    model_name_or_path: str = "mistralai/Mistral-7B-Instruct-v0.2",
+    batch_size: int = 96,
+    prompt_length: int = 160,
+    output_length: int = 338,
+    num_repeats: int = 3,
+) -> str:
+    out_json = "outputs/baseline_mem_speed_no_flash_l40s.json"
+    cmd = [
+        "python",
+        "scripts/run_baseline_mem_speed.py",
+        "--model_name_or_path",
+        model_name_or_path,
+        "--cache_dir",
+        f"{REMOTE_CACHE}/cached_models",
+        "--batch_size",
+        str(batch_size),
+        "--prompt_length",
+        str(prompt_length),
+        "--output_length",
+        str(output_length),
+        "--num_repeats",
+        str(num_repeats),
+        "--disable_flash_attention_2",
+        "--out_json",
+        out_json,
+    ]
+    output = _run(cmd, cwd=REMOTE_REPO)
+    _copy_if_exists(f"{REMOTE_REPO}/{out_json}", REMOTE_OUTPUTS)
+    cache_volume.commit()
+    outputs_volume.commit()
+    return output

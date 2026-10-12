@@ -45,7 +45,7 @@ class ModelArguments:
     )
     adaptive_policy: Optional[str] = field(
         default="static_distance",
-        metadata={"help": "Adaptive policy: static_distance, reuse_aware, hybrid."},
+        metadata={"help": "Adaptive policy. Only static_distance is implemented."},
     )
     adaptive_segment_lengths: Optional[str] = field(
         default=None,
@@ -62,22 +62,6 @@ class ModelArguments:
     use_flash_attention_2: Optional[bool] = field(
         default=False,
         metadata={"help": "Whether to enable FlashAttention-2 / flash KV path."},
-    )
-    reuse_window: Optional[int] = field(
-        default=64,
-        metadata={"help": "Window size for reuse-aware token importance updates."},
-    )
-    reuse_topk: Optional[int] = field(
-        default=32,
-        metadata={"help": "How many high-reuse tokens or groups to preserve at higher precision."},
-    )
-    hybrid_high_bits: Optional[int] = field(
-        default=None,
-        metadata={"help": "Optional promoted bit width in hybrid mode."},
-    )
-    hybrid_low_bits: Optional[int] = field(
-        default=None,
-        metadata={"help": "Optional demoted bit width in hybrid mode."},
     )
 
 

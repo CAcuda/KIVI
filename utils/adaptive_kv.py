@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Iterable, List, Optional
 
-from transformers import AutoConfig
+SUPPORTED_POLICIES = {"static_distance"}
 
 
 def parse_int_list(raw: Optional[str]) -> Optional[List[int]]:
@@ -36,26 +36,24 @@ class AdaptiveKVConfig:
     segment_lengths: Optional[List[int]] = None
     k_segment_bits: Optional[List[int]] = None
     v_segment_bits: Optional[List[int]] = None
-    reuse_window: int = 64
-    reuse_topk: int = 32
-    hybrid_high_bits: Optional[int] = None
-    hybrid_low_bits: Optional[int] = None
 
     def validate(self) -> None:
         if not self.enabled:
             return
-        if self.policy not in {"static_distance", "reuse_aware", "hybrid"}:
-            raise ValueError(f"Unsupported adaptive KV policy: {self.policy}")
-
-        if self.policy == "static_distance":
-            if not self.segment_lengths:
-                raise ValueError("Static distance policy requires --adaptive_segment_lengths.")
-            if not self.k_segment_bits or not self.v_segment_bits:
-                raise ValueError("Static distance policy requires per-segment K/V bits.")
-            if len(self.segment_lengths) != len(self.k_segment_bits):
-                raise ValueError("adaptive_segment_lengths and adaptive_k_bits must have the same length.")
-            if len(self.segment_lengths) != len(self.v_segment_bits):
-                raise ValueError("adaptive_segment_lengths and adaptive_v_bits must have the same length.")
+        if self.policy not in SUPPORTED_POLICIES:
+            raise ValueError(
+                f"Unsupported adaptive KV policy: {self.policy}. Implemented: {sorted(SUPPORTED_POLICIES)}."
+            )
+        if not self.segment_lengths:
+            raise ValueError("Static distance policy requires --adaptive_segment_lengths.")
+        if not self.k_segment_bits or not self.v_segment_bits:
+            raise ValueError("Static distance policy requires per-segment K/V bits.")
+        if len(self.segment_lengths) != len(self.k_segment_bits):
+            raise ValueError("adaptive_segment_lengths and adaptive_k_bits must have the same length.")
+        if len(self.segment_lengths) != len(self.v_segment_bits):
+            raise ValueError("adaptive_segment_lengths and adaptive_v_bits must have the same length.")
+        if any(bits not in (2, 4, 8) for bits in self.k_segment_bits + self.v_segment_bits):
+            raise ValueError("Adaptive KV supports only 2/4/8-bit segments.")
 
 
 def build_adaptive_kv_config(model_args) -> AdaptiveKVConfig:
@@ -65,10 +63,6 @@ def build_adaptive_kv_config(model_args) -> AdaptiveKVConfig:
         segment_lengths=normalize_segment_lengths(parse_int_list(getattr(model_args, "adaptive_segment_lengths", None))),
         k_segment_bits=parse_int_list(getattr(model_args, "adaptive_k_bits", None)),
         v_segment_bits=parse_int_list(getattr(model_args, "adaptive_v_bits", None)),
-        reuse_window=int(getattr(model_args, "reuse_window", 64)),
-        reuse_topk=int(getattr(model_args, "reuse_topk", 32)),
-        hybrid_high_bits=getattr(model_args, "hybrid_high_bits", None),
-        hybrid_low_bits=getattr(model_args, "hybrid_low_bits", None),
     )
     cfg.validate()
     return cfg
@@ -94,11 +88,34 @@ def attach_adaptive_fields(config, model_args):
     config.adaptive_segment_lengths = parse_int_list(getattr(model_args, "adaptive_segment_lengths", None))
     config.adaptive_k_bits = parse_int_list(getattr(model_args, "adaptive_k_bits", None))
     config.adaptive_v_bits = parse_int_list(getattr(model_args, "adaptive_v_bits", None))
-    config.reuse_window = int(getattr(model_args, "reuse_window", 64))
-    config.reuse_topk = int(getattr(model_args, "reuse_topk", 32))
-    config.hybrid_high_bits = getattr(model_args, "hybrid_high_bits", None)
-    config.hybrid_low_bits = getattr(model_args, "hybrid_low_bits", None)
     return config
+
+
+def bucket_token_counts(seq_len: int, segment_lengths: List[int], residual_length: int) -> dict:
+    """How many tokens of a `seq_len` key cache sit in each precision bucket.
+
+    Mirrors the static_distance cache in models/*_kivi.py: tokens are quantized in
+    chunks of `residual_length`, the newest chunks enter bucket 0, and overflow is
+    pushed to the next bucket. Bucket i holds at most segment_lengths[i] tokens,
+    except the last bucket, which is unbounded (its configured length is unused).
+    """
+    quantized = (seq_len // residual_length) * residual_length
+    counts = []
+    remaining = quantized
+    for idx, capacity in enumerate(segment_lengths):
+        take = remaining if idx == len(segment_lengths) - 1 else min(remaining, capacity)
+        counts.append(take)
+        remaining -= take
+    return {"fp16_residual": seq_len - quantized, "segments": counts}
+
+
+def effective_kv_bits(seq_len: int, segment_lengths: List[int], segment_bits: List[int], residual_length: int) -> float:
+    """Average stored bits per KV element, ignoring per-group scale/zero-point overhead."""
+    if seq_len <= 0:
+        return 0.0
+    counts = bucket_token_counts(seq_len, segment_lengths, residual_length)
+    total_bits = 16 * counts["fp16_residual"] + sum(n * b for n, b in zip(counts["segments"], segment_bits))
+    return total_bits / seq_len
 
 
 def resolve_model_max_length(model_name_or_path: str, model2maxlen: dict) -> tuple[str, int]:
@@ -123,6 +140,8 @@ def resolve_model_max_length(model_name_or_path: str, model2maxlen: dict) -> tup
         key = lower_to_key.get(candidate.lower())
         if key is not None:
             return key, int(model2maxlen[key])
+
+    from transformers import AutoConfig
 
     config = AutoConfig.from_pretrained(model_name_or_path, trust_remote_code=True)
     max_length = getattr(config, "max_position_embeddings", None)

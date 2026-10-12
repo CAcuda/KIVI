@@ -14,6 +14,7 @@ from utils.adaptive_kv import (
     build_adaptive_kv_config,
     resolve_model_max_length,
 )
+from utils.longbench_io import is_complete, write_predictions
 from utils.process_args_adaptive import process_args_adaptive
 
 os.environ["WANDB_DISABLED"] = "true"
@@ -238,9 +239,11 @@ if __name__ == "__main__":
 
     for dataset in datasets:
         out_path = os.path.join(exp_dir, f"{dataset}.jsonl")
-        if os.path.exists(out_path) and os.path.getsize(out_path) > 0:
-            print(f"[skip] {dataset}: existing predictions found at {out_path}")
+        if is_complete(out_path):
+            print(f"[skip] {dataset}: complete predictions found at {out_path}")
             continue
+        if os.path.exists(out_path):
+            print(f"[rerun] {dataset}: {out_path} exists but is incomplete or unverified")
 
         print(f"[run] {dataset}")
         split_name = f"{dataset}_e" if data_args.e else dataset
@@ -248,8 +251,5 @@ if __name__ == "__main__":
         prompt_format = dataset2prompt[dataset]
         max_gen = dataset2maxlen[dataset]
         preds = get_pred(model, tokenizer, data, max_length, max_gen, prompt_format, dataset, device, model_name)
-        with open(out_path, "w", encoding="utf-8") as f:
-            for pred in preds:
-                json.dump(pred, f, ensure_ascii=False)
-                f.write("\n")
+        write_predictions(out_path, preds, expected_count=len(data))
         print(f"[done] {dataset}: wrote {len(preds)} predictions to {out_path}")

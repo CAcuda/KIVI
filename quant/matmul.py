@@ -133,7 +133,7 @@ def triton_bmm_fA_qB_outer(group_size: int,
 	B, nh, M, K = fA.shape 
 	feat_per_int = 32 // bits
 	# flatten to a 3D tensor
-	fA = fA.view(-1, M, K)
+	fA = fA.reshape(-1, M, K)
 	N = qB.shape[-1] * feat_per_int
 	qB = qB.reshape(-1, K, qB.shape[-1])
 	# This is based on the possible BLOCK_SIZE_Ks
@@ -200,7 +200,7 @@ def cuda_bmm_fA_qB_outer(group_size: int,
 	nh_kv =  qB.shape[1]
 	feat_per_int = 32 // bits
 	# flatten to a 3D tensor
-	fA = fA.view(-1, M, K).contiguous()
+	fA = fA.reshape(-1, M, K).contiguous()  # query may be non-contiguous on the flash-attention decode path
 	N = qB.shape[-1] * feat_per_int
 	qB = qB.reshape(-1, K, qB.shape[-1]).transpose(1, 2).contiguous()
 	# This is based on the possible BLOCK_SIZE_Ks

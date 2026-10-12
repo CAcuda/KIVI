@@ -16,6 +16,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from eval_long_bench import scorer
+from utils.longbench_io import write_predictions
 
 os.environ["WANDB_DISABLED"] = "true"
 
@@ -185,10 +186,7 @@ def main():
     out_path = pred_dir / f"{args.dataset}.jsonl"
 
     preds = get_pred(model, tokenizer, data, max_length, max_gen, prompt_format, args.dataset, device, model_name)
-    with out_path.open("w", encoding="utf-8") as f:
-        for pred in preds:
-            json.dump(pred, f, ensure_ascii=False)
-            f.write("\n")
+    write_predictions(str(out_path), preds, expected_count=len(data))
 
     predictions = [item["pred"] for item in preds]
     answers = [item["answers"] for item in preds]

@@ -1,0 +1,37 @@
+{
+  "model_name_or_path": "mistralai/Mistral-7B-Instruct-v0.2",
+  "mode": "adaptive_kv",
+  "gpu": "NVIDIA A100-SXM4-40GB",
+  "flash_attention_2_enabled": true,
+  "dtype": "float16",
+  "batch_size": 4,
+  "requested_batch_size": 4,
+  "prompt_length": 8192,
+  "output_length": 256,
+  "generated_tokens": 256,
+  "max_kv_len": 8448,
+  "num_repeats": 3,
+  "warmup_tokens": 8,
+  "avg_time_ms": 41776.781494333336,
+  "decode_tokens_per_s": 24.511222822152945,
+  "peak_mem_gb": 20.88815450668335,
+  "weights_mem_gb": 13.488792419433594,
+  "peak_mem_minus_weights_gb": 7.399362087249756,
+  "oom_retries": [],
+  "adaptive_policy": "static_distance",
+  "adaptive_segment_lengths": "2048,4096,8192",
+  "adaptive_k_bits": "8,4,2",
+  "adaptive_v_bits": "8,4,2",
+  "group_size": 64,
+  "residual_length": 128,
+  "bucket_token_counts_at_max_len": {
+    "fp16_residual": 0,
+    "segments": [
+      2048,
+      4096,
+      2304
+    ]
+  },
+  "effective_k_bits_at_max_len": 4.424242424242424,
+  "effective_v_bits_at_max_len": 4.424242424242424
+}

@@ -935,6 +935,8 @@ class MistralFlashAttention_KIVI(MistralAttention_KIVI):
                     value_scale = scale
                     value_mn = mn
 
+            past_key_value = (key_states_quant_trans, key_states_full, key_scale_trans, key_mn_trans,
+                              value_states_quant, value_states_full, value_scale, value_mn, kv_seq_len) if use_cache else None
 
         else:
             # print(f"kivi with flash! {self.k_bits}")
